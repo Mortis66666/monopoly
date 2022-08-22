@@ -13,7 +13,20 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-    res.redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley");
+    res.render("game.ejs", {abc:"hello"});
+})
+
+
+io.on("connection", socket => {
+    console.log("A socket connected");
+
+    socket.on("msg", msg => {
+        io.emit("msg", msg);
+    })
+
+    socket.on("disconnect", () => {
+        console.log("A socket disconnected");
+    })
 })
 
 

@@ -5,8 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monopoly</title>
+
+    <link rel="stylesheet" href="styles/game.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="scripts/player.js"></script>
+    <script src="scripts/sketch.js"></script>
+    <script src="scripts/socket.js" defer></script>
+    <script src="scripts/chat.js" defer></script>
 </head>
 <body>
-    
+    <div id="canvas"></div>
+    <div id="chat">
+        <ul id="msgs">
+        </ul>
+        <form id="form">
+            <input type="text" id="input" placeholder="Send a message">
+            <input type="submit" id="submit-btn" value="Send">
+        </form>
+    </div>
 </body>
 </html>
