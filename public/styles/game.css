@@ -1,3 +1,7 @@
+:root {
+    --length: 85px;
+}
+
 #chat {
     border: 2px solid black;
     position: absolute;
@@ -24,6 +28,6 @@ ul {
 
 #canvas {
     border: 5px solid black;
-    width: calc(9 * 69px);
-    height: calc(9 * 69px);
+    width: calc(9 * var(--length));
+    height: calc(9 * var(--length));
 }
