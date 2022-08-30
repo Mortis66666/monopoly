@@ -35,10 +35,6 @@ class Player {
         player.bal += amt;
     }
 
-    jail() {
-        this.jail = 3;
-    }
-
     pass() {
         this.atJail -= 1;
         return true;

@@ -42,7 +42,7 @@ const reasonGain = [
     "You won a lottery",
     "You sold a computer",
     "You found some money on the floor and pick it up",
-    "You get your scholarship",
+    "You gets their scholarship",
     "You pretend to be a begger and someone donate them some money",
     "You robbed the bank",
     "You sold a bitcoin",
@@ -213,7 +213,7 @@ function draw() {
             stage = "end"
         } else if (at.isGoToJail) {
             alert(`Player ${curr.name} goes to jail and can't play for three turns!`);
-            curr.jail();
+            curr.goToJail();
             curr.goTo(places[8]);
             stage = "end";
         } else {
