@@ -12,6 +12,7 @@ class Place {
         this.isJail = name == "Jail";
         this.isCard = ["Fate", "Chance"].includes(name);
         this.isStart = name == "Start";
+        this.isGoToJail = name == "Go to jail";
 
         if (id < 9) {
             this.baseY = 0;
@@ -25,6 +26,31 @@ class Place {
         } else {
             this.baseX = 0;
             this.baseY = (8 - (id % 8)) * gridLength;
+        }
+
+        if (this.isBuyable) {
+            if (id < 8) {
+                this.housePrice = 50;
+            } else if (id < 16) {
+                this.housePrice = 100;
+            } else if (id < 24) {
+                this.housePrice = 150;
+            } else {
+                this.housePrice = 200;
+            }
+        }
+
+        this.house = 0;
+        this.hotel = 0;
+    }
+
+    get rent() {
+        if (!this.house) {
+            return this.rents[0];
+        } else if (this.hotel) {
+            return this.rents[-1];
+        } else {
+            return this.rents[this.house];
         }
     }
 
@@ -42,38 +68,41 @@ class Place {
         noStroke();
 
         textSize(gridLength * .13);
-        text(this.name, this.baseX, this.baseY, gridLength, gridLength);
+        text(this.name + (this.owner ? `\n(Owned by ${this.owner.name})` : ""), this.baseX, this.baseY, gridLength, gridLength);
 
 
         for (let [i, player] of Object.entries(this.playerOnTop)) {
-            player.draw(
-                this.baseX + pieceSize * i, this.baseY + gridLength * .5
+            if (player.bal >= 0) {
+                player.draw(
+                    this.baseX + pieceSize * i, this.baseY + gridLength * .5
+                );
+            }
+        }
+
+        let size = gridLength * .25;
+
+        if (this.hotel) {
+            image(
+                hotelImg,
+                this.baseX + gridLength * .5 - size, this.baseY,
+                size, size
             );
+        } else if (this.house) {
+            for (let i = 0; i < this.house; i++) {
+                image(
+                    houseImg,
+                    this.baseX + i * size, this.baseY,
+                    size, size
+                );
+            }
         }
     }
 
     add(player, arg) {
-        // Arg:
-        // If its starting square arg represent if this is the starting position
-        // If its jail arg represent if this is just pass by or not
-
-
         this.playerOnTop.push(player);
-
-        if (this.isStart) {
-            if (!arg) {
-                player.bal += 200;
-            }
-        } else if (this.isJail) {
-            if (!arg) {
-                player.atJail = 3;
-            }
-        } else if (this.isCard) {
-            // TODO: Give player card
-        }
     }
 
     remove(player) {
-        this.playerOnTop.splice(this.playerOnTop.indexOf(player));
+        this.playerOnTop.splice(this.playerOnTop.indexOf(player), 1);
     }
 }

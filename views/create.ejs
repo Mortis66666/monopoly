@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create new game</title>
+
+    <script src="scripts/create.js" defer></script>
+
+    
+</head>
+<body>
+    <h1>Create new monopoly game!</h1>
+
+    <form action="/game" method="POST">
+        <label for="amt">Amount of players:</label>
+        <br>
+        <input name="amt" id="amt" type="range" min="2" max="4">
+        <p id="a">3</p>
+        <input type="submit" value="Create!">
+    </form>
+</body>
+</html>

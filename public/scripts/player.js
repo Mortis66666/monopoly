@@ -1,12 +1,13 @@
 class Player {
-    constructor(name, color, bank) {
-        this.name = name;
+    constructor(color, bank) {
         this.color = color;
         this.bal = 1500;
         this.at = null;
         this.atJail = 0;
         this.jailFree = 0;
         this.properties = [];
+        
+        this.name = color.toUpperCase();
 
         if (bank) {
             this.bal = Infinity;
@@ -18,7 +19,9 @@ class Player {
     }
 
     goTo(place) {
-        this.at.remove(this);
+        if (this.at) {
+            this.at.remove(this);
+        }
         this.at = place;
         place.add(this);
     }
@@ -32,21 +35,30 @@ class Player {
         player.bal += amt;
     }
 
+    jail() {
+        this.jail = 3;
+    }
+
+    pass() {
+        this.atJail -= 1;
+        return true;
+    }
+
     draw(x, y) {
         textSize(pieceSize * .5);
 
         fill(this.color);
-        noStroke();
+        stroke(0);
+        strokeWeight(1);
         ellipse(
             x + pieceSize * .5, y + pieceSize * .5,
             pieceSize, pieceSize
         );
 
-        fill((this.color != "yellow") * 255);
-        text(
-            this.name[0],
-            x + pieceSize * .5,
-            y * 1.3
-        );
+        if (this.atJail) {
+            line(x, y, x + pieceSize, y + pieceSize);
+            line(x + pieceSize, y, x, y + pieceSize);
+        }
+
     }
 }

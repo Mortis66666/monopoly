@@ -7,3 +7,62 @@
     width: calc(9 * var(--length));
     height: calc(9 * var(--length));
 }
+
+.hide {
+    display: none;
+}
+
+#container {
+    position: absolute;
+    right: 20%;
+
+    width: 310px;
+    height: 170px;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    background-color: #9da3a0;
+    margin: 0;
+}
+
+#info {
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
+
+#fbtn {
+    width: 100px;
+    height: 50px;
+    font-size: 30px;
+
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -10%);
+    margin: 0;
+
+    border: 2px solid gold;
+}
+
+.green {
+    color: green;
+}
+
+.yellow {
+    color: yellow;
+}
+
+.blue {
+    color: blue;
+}
+
+.red {
+    color: red;
+}
+
+
+

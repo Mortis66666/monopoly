@@ -1,7 +1,6 @@
 const gridWidth = 9;
 const gridHeight = 9;
 const gridLength = 85;
-const pieceSize = gridLength * .25;
 const bank = Player.bank();
 
 const placesReference = [
@@ -39,31 +38,243 @@ const placesReference = [
     ["Mayfair", 400, "darkblue", [50, 200, 600, 1400, 1700, 2000]],
 ];
 
+const reasonGain = [
+    "You won a lottery",
+    "You sold a computer",
+    "You found some money on the floor and pick it up",
+    "You get your scholarship",
+    "You pretend to be a begger and someone donate them some money",
+    "You robbed the bank",
+    "You sold a bitcoin",
+    "You won a math competition",
+];
+
+const reasonLost = [
+    "You need to pay their school fee",
+    "You get robbed",
+    "You didn't wear mask when going out",
+    "You simply park their car and kena saman",
+    "You was caught for robbing the bank",
+    "You bought a Iphone 13 pro max",
+    "You lost a bet"
+];
+
 const places = [];
 
-const player = new Player("mortis", "red");
-const players = [player];
+const players = [];
+const amt = +document.getElementById("amt").innerHTML;
+const colors = ["red", "green", "yellow", "blue"]
+
+const pieceSize = gridLength / amt;
+
+const info = document.getElementById("info");
+const btn = document.getElementById("fbtn");
+
+var turn = 0;
+var stage = "move";
+
+let houseImg;
+let hotelImg;
+
+let someoneWon = false;
 
 function setup() {
     let canvas = createCanvas(gridWidth * gridLength, gridHeight * gridLength);
     canvas.parent("canvas");
 
     for (let [id, args] of Object.entries(placesReference)) {
-        places.push(new Place(id, ...args));
+        places.push(new Place(+id, ...args));
     }
 
-    places[0].add(player);
+    for (let i = 0; i < amt; i++) {
+        let player = new Player(colors[i]);
+        player.goTo(places[0]);
+        players.push(player);
+    }
+
+    houseImg = loadImage("house.png");
+    hotelImg = loadImage("hotel.png")
+
 
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
 }
 
 function draw() {
+    clear();
     for (let place of places) {
         place.draw();
     }
+
+    for (let [i, player] of Object.entries(players)) {
+        fill(player.color);
+        stroke(0);
+        strokeWeight(3);
+        ellipse(
+            1.5 * gridLength,
+            (1.5 + +i) * gridLength,
+            gridLength * .5
+        );
+
+        textSize(gridLength);
+
+        text(
+            `$${player.bal}`,
+            2 * gridLength,
+            (1 + +i) * gridLength,
+            6 * gridLength,
+            gridLength
+        )
+    }
+
+    let curr = players[turn];
+
+    let msg = `${curr.name}'s turn`;
+
+    if (stage == "move") {
+        btn.innerHTML = "Roll";
+        btn.onclick = () => {
+            pos = curr.at.id;
+            pos += dice();
+
+            if (pos > 31) {
+                bank.give(curr, 200);
+                alert(`Player ${curr.name} gets $200 for passing the starting square!`);
+                pos -= 32;
+            }
+
+
+            curr.goTo(places[pos]);
+            stage = "do";
+        }
+    } else if (stage == "do") {
+        let at = curr.at;
+        if (at.isBuyable) {
+            if (!at.owner) {
+                if (at.price <= curr.bal) {
+                    if (confirm(`Buy ${at.name} for $${at.price}?`)) {
+                        at.owner = curr;
+                        curr.properties.push(at);
+                        curr.give(bank, at.price);
+                        stage = "end";
+                    } else {
+                        stage = "end";
+                    }
+                } else {
+                    stage = "end";
+                }
+            } else if (at.owner == curr) {
+                if (at.housePrice <= curr.bal) {
+                    if (at.house < 4) {
+                        if (confirm(`Buy house for $${at.housePrice}?`)) {
+                            at.house += 1;
+                            curr.give(bank, at.housePrice)
+                            stage = "end";
+                        } else {
+                            stage = "end";
+                        }
+                    } else if (at.house == 4 && at.hotel == 0) {
+                        if (confirm(`Buy hotel for $${at.housePrice}?`)) {
+                            at.hotel += 1;
+                            curr.give(bank, at.housePrice)
+                            stage = "end"
+                        } else {
+                            stage = "end";
+                        }
+                    } else {
+                        stage = "end";
+                    }
+                } else {
+                    stage = "end";
+                }
+            } else if (at.owner != curr && !at.owner.atJail) {
+                alert(`Player ${curr.name} gives player ${at.owner.name} $${at.rent} for steping their properties!`);
+                curr.give(at.owner, at.rent);
+                stage = "end";
+            } else {
+                stage = "end";
+            }
+        } else if (at.isCard) {
+            
+            let gain = randint(0, 1);
+            let amount = randint(10, 300);
+            let reason;
+
+            if (gain) {
+                reason = reasonGain[randint(0, reasonGain.length - 1)];
+                bank.give(curr, amount);
+            } else {
+                reason = reasonLost[randint(0, reasonLost.length - 1)];
+                curr.give(bank, amount);
+            }
+
+            alert(reason.replaceAll("You", `Player ${curr.name}`) + `, ${gain ? "gained" : "lost"} $${amount}`);
+
+            stage = "end"
+        } else if (at.isGoToJail) {
+            alert(`Player ${curr.name} goes to jail and can't play for three turns!`);
+            curr.jail();
+            curr.goTo(places[8]);
+            stage = "end";
+        } else {
+            stage = "end";
+        }
+
+        stage = "end";
+
+
+    } else if (stage == "end") {
+        next();
+    }
+
+    info.innerHTML = msg;
+    info.className = "";
+    btn.className = "";
+
+    info.classList.add(curr.color);
+    btn.classList.add(curr.color);
+
+    for (let player of players) {
+        if (player.bal < 0) {
+            alert(`${player.name} bankrupted!`);
+            players.splice(players.indexOf(player), 1);
+        }
+    }
+
+    if (!someoneWon) {
+        if (players.length == 1) {
+            alert(`Player ${players[0].name} won!`);
+            someoneWon = true;
+        }
+    }
+
+}
+
+function randint(min, max) {
+    return Math.floor(Math.random()*(max-min+1)+min);
 }
 
 function dice() {
-    return Math.floor(Math.random() * 11 + 2);
+    return randint(2, 12);
+}
+
+function next() {
+    do {
+        turn++;
+        if (turn == amt) {
+            turn = 0;
+        }
+    } while (+players[turn].atJail && players[turn].pass());
+    stage = "move";
+}
+
+function nextStage() {
+    switch (stage) {
+        case "move":
+            stage = "do";
+            break;
+        case "do":
+            stage = "end";
+            break;
+    }
 }
