@@ -261,7 +261,7 @@ function dice() {
 function next() {
     do {
         turn++;
-        if (turn == amt) {
+        if (turn == players.length) {
             turn = 0;
         }
     } while (+players[turn].atJail && players[turn].pass());
